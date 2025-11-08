@@ -205,3 +205,125 @@ src/
 └── test/                   # Testes unitários e integração
 ```
 
+## Procedures
+
+## 🧩 1. `prc_listar_ocupacoes_json`
+
+### 📝 Descrição
+Gera um **array JSON** contendo todas as ocupações registradas no sistema – incluindo informações de estações, vagas, motos e usuários.  
+A procedure monta manualmente a estrutura JSON em CLOB e retorna pelo parâmetro de saída `p_json_out`.
+
+### 🧠 Estrutura
+```sql
+CREATE OR REPLACE PROCEDURE prc_listar_ocupacoes_json(
+    p_estacao_id     IN NUMBER,
+    p_somente_ativas IN CHAR,
+    p_limit          IN PLS_INTEGER,
+    p_json_out       OUT CLOB
+)
+```
+
+### 📤 Exemplo de Saída
+```json
+[{
+  "id_ocupacao": 3,
+  "dt_entrada": "2025-09-20T10:30:00",
+  "dt_saida": "",
+  "id_vaga": 3,
+  "ds_vaga": "V03",
+  "id_estacao": 1,
+  "nm_estacao": "Estacao X01",
+  "id_moto": 3,
+  "ds_placa": "AAA1B03",
+  "nm_modelo": "Modelo 03",
+  "id_usuario": 3,
+  "nm_usuario": "Usuario 03"
+}]
+```
+
+### ⚡ Exemplo de Execução
+```sql
+DECLARE
+  v_json CLOB;
+BEGIN
+  prc_listar_ocupacoes_json(
+    p_estacao_id     => NULL,
+    p_somente_ativas => 'S',
+    p_limit          => 10,
+    p_json_out       => v_json
+  );
+  DBMS_OUTPUT.PUT_LINE(v_json);
+END;
+```
+
+### 💻 Consumo no Java
+A aplicação consome esta procedure através do **OcupacaoSpRepository** e **OcupacaoService**.
+
+```java
+String json = ocupacaoSpRepository.listarOcupacoesJson(estacaoId, somenteAtivas, limit);
+List<OcupacaoDto> lista = objectMapper.readValue(json, new TypeReference<>() {});
+```
+
+---
+
+## 📊 2. `prc_resumo_ocupacao_minutos`
+
+### 📝 Descrição
+Produz um **resumo agregado de minutos ocupados** por combinação de **(Estação, Vaga)**.  
+Realiza soma manual dos tempos de entrada/saída das ocupações e exibe o resultado via `DBMS_OUTPUT`.
+
+### 🧠 Estrutura
+```sql
+CREATE OR REPLACE PROCEDURE prc_resumo_ocupacao_minutos IS
+  CURSOR c_fato IS
+    SELECT
+      e.id_estacao      AS cat1_estacao,
+      v.id_vaga         AS cat2_vaga,
+      (NVL(ov.dt_saida, SYSDATE) - ov.dt_entrada) * 24 * 60 AS minutos
+    FROM tb_mtt_ocupacao_vaga ov
+    JOIN tb_mtt_vaga v    ON v.id_vaga = ov.id_vaga
+    JOIN tb_mtt_estacao e ON e.id_estacao = v.id_estacao
+    ORDER BY e.id_estacao, v.id_vaga;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('CAT1_ESTACAO | CAT2_VAGA | MINUTOS');
+  FOR r IN c_fato LOOP
+    DBMS_OUTPUT.PUT_LINE(r.cat1_estacao || ' | ' || r.cat2_vaga || ' | ' || TO_CHAR(ROUND(NVL(r.minutos,0),2)));
+  END LOOP;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN DBMS_OUTPUT.PUT_LINE('Sem dados suficientes.');
+  WHEN VALUE_ERROR THEN DBMS_OUTPUT.PUT_LINE('Erro de conversão/valor.');
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('Erro inesperado: '||SQLERRM);
+END;
+```
+
+### 📤 Exemplo de Saída
+```
+CAT1_ESTACAO | CAT2_VAGA | MINUTOS
+1 | 3 | 68284.22
+1 | 4 | 25912.89
+2 | 1 | 1500.50
+```
+
+### 💻 Consumo no Java
+O `ResumoOcupacaoRepository` executa a procedure via JDBC e lê as linhas do `DBMS_OUTPUT`.
+
+```java
+try (CallableStatement cs = con.prepareCall("{call prc_resumo_ocupacao_minutos}")) {
+    cs.execute();
+}
+```
+
+Cada linha é mapeada para o DTO:
+```java
+public record LinhaResumo(Integer estacao, Integer vaga, BigDecimal minutos) {}
+```
+
+---
+
+## 🧭 Resumo Geral
+
+| Procedure | Tipo de Saída | Uso Principal | Consumo Java | Exibição |
+|------------|----------------|----------------|----------------|------------|
+| `prc_listar_ocupacoes_json` | JSON (CLOB) | Listar ocupações detalhadas | `OcupacaoSpRepository` + `OcupacaoService` | Thymeleaf – Listar Ocupações |
+| `prc_resumo_ocupacao_minutos` | DBMS_OUTPUT | Resumo por estação/vaga | `ResumoOcupacaoRepository` + `ResumoOcupacaoService` | Thymeleaf – Resumo de Ocupações |
+
