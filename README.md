@@ -11,7 +11,7 @@
 
 [Link do video](https://www.youtube.com/watch?v=wkxnCdIYTLg) - https://www.youtube.com/watch?v=wkxnCdIYTLg
 
-[Link do deploy](https://java-sprint-4-0k9h.onrender.com) - https://java-sprint-4-0k9h.onrender.com
+[Link do deploy](https://java-sprint-4-0k9h.onrender.com/login) - https://java-sprint-4-0k9h.onrender.com/login
 
 ## Descrição
 
