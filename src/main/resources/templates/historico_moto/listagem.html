@@ -57,13 +57,6 @@
             <p class="mt-1 text-sm text-neutral-400">Registros de entradas, saídas e alterações.</p>
         </div>
 
-        <a th:href="@{/historicos-moto/novo}"
-           class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-neutral-900 shadow-lg shadow-brand-500/20 transition hover:bg-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/>
-            </svg>
-            Registrar histórico
-        </a>
     </div>
 
     <!-- Mensagens (flash) -->
@@ -90,7 +83,6 @@
                     <th class="px-5 py-3 text-left font-semibold">Usuário</th>
                     <th class="px-5 py-3 text-left font-semibold">Ação/Status</th>
                     <th class="px-5 py-3 text-left font-semibold">Data/Hora</th>
-                    <th class="px-5 py-3 text-right font-semibold">Ações</th>
                 </tr>
                 </thead>
 
@@ -137,27 +129,7 @@
                     </td>
 
 
-                    <!-- Ações -->
-                    <td class="px-5 py-3">
-                        <div class="flex items-center justify-end gap-2">
-                            <a th:href="@{|/historicos-moto/editar/${h.id}|}"
-                               class="inline-flex items-center gap-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 font-medium text-neutral-200 transition hover:border-brand-500/50 hover:text-brand-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M4 17.25V21h3.75L19.81 8.94l-3.75-3.75L4 17.25zm16.85-10.6a1.003 1.003 0 0 0 0-1.42l-2.08-2.08a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.58-1.58z"/>
-                                </svg>
-                                Editar
-                            </a>
 
-                            <a th:href="@{|/historicos-moto/excluir/${h.id}|}"
-                               th:attr="onclick=|return confirm('Excluir o registro #' + '${h.id}' + '?');|"
-                               class="inline-flex items-center gap-1 rounded-lg border border-red-900 bg-red-900/20 px-3 py-1.5 font-medium text-red-300 transition hover:border-red-700 hover:bg-red-900/30">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M6 7h12v2H6V7zm2 3h8l-1 9H9L8 10zm3-6h2l1 2H10l1-2z"/>
-                                </svg>
-                                Excluir
-                            </a>
-                        </div>
-                    </td>
                 </tr>
                 </tbody>
             </table>
