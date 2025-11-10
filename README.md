@@ -123,7 +123,7 @@ Antes de executar o projeto, você precisará ter as seguintes ferramentas insta
 ### Passo 1: Clone o repositório
 
 ```bash
-git clone https://github.com/seu-repositorio/eficientiza.git
+git clone https://github.com/L-Salazar/Java---Sprint-4
 ```
 
 ### Passo 2: Navegue até o diretório do projeto
